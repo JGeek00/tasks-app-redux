@@ -1,7 +1,19 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {complete, process} from '../store';
 
-const Tasks = ({tasks, handleClick}) => {
+const mapDispatch = {complete, process}
+
+const Tasks = ({tasks, handleClick, complete, process}) => {
+    handleClick = (task) => {
+        if (task.status === 'process') {
+            complete(task);
+        }
+        else if (task.status === 'completed') {
+            process(task);
+        }
+    }
+
     return (
         <div className="mainContent">
             <div className="process">
@@ -50,27 +62,10 @@ const Tasks = ({tasks, handleClick}) => {
     );
 }
 
+
 const mapStateToProps = (state) => ({
     tasks: state
 });
 
-const mapDispatchToProps = (dispatch) => ({
-    handleClick(task) { 
-        if (task.status === 'process') {
-            dispatch({
-                type: 'STATUS_COMPLETED',
-                task
-            })
-        }
-        else if (task.status === 'completed') {
-            dispatch({
-                type: 'STATUS_PROCESS',
-                task
-            })
-        }
-    }
-});
-
-
  
-export default connect(mapStateToProps, mapDispatchToProps)(Tasks);
+export default connect(mapStateToProps, mapDispatch)(Tasks);

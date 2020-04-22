@@ -1,4 +1,4 @@
-import {createStore} from 'redux';
+import {configureStore, createSlice} from '@reduxjs/toolkit';
 
 const tasks = [
     {
@@ -34,16 +34,16 @@ const tasks = [
 ]
 
 
-
-
-const reducer = (state = tasks, action) => {
-    switch (action.type) {
-        case "STATUS_COMPLETED":
+const tasksSlice = createSlice({
+    name: 'tasks',
+    initialState: tasks,
+    reducers: {
+        complete: (state, action) => {
             return state.map(task => {
-                if (task.id !== action.task.id) {
+                if (task.id !== action.payload.id) {
                     return task;
                 }
-                else if (task.id === action.task.id) {
+                else if (task.id === action.payload.id) {
                     return {
                         ...task,
                         status: 'completed'
@@ -52,14 +52,14 @@ const reducer = (state = tasks, action) => {
                 else {
                     return task;
                 }
-            })
-
-        case "STATUS_PROCESS":
+            });
+        },
+        process: (state, action) => {
             return state.map(task => {
-                if (task.id !== action.task.id) {
+                if (task.id !== action.payload.id) {
                     return task;
                 }
-                else if (task.id === action.task.id) {
+                else if (task.id === action.payload.id) {
                     return {
                         ...task,
                         status: 'process'
@@ -68,20 +68,25 @@ const reducer = (state = tasks, action) => {
                 else {
                     return task;
                 }
-            })
-
-        case "ADD_TASK":
-            return [
-                ...state.concat({
-                    id: state.length,
-                    name: action.name,
-                    status: 'process'
-                })
-            ]
-
-        default:
-            return state;
+            });
+        },
+        add: {
+            reducer(state, action) {
+                return [
+                    ...state.concat({
+                        id: state.length,
+                        name: action.payload,
+                        status: 'process'
+                    })
+                ]
+            }
+        }
     }
-}
+})
 
-export default createStore(reducer);
+
+export const {complete, process, add} = tasksSlice.actions;
+
+export default configureStore({
+    reducer: tasksSlice.reducer
+});
