@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
 import {connect} from 'react-redux';
 import {add} from '../store';
+import axios from 'axios';
 
 const mapDispatch = {add}; 
 
 const TextField = ({add}) => {
     const [text, setText] = useState('');
 
-    const handleAdd = (e) => { 
+    const handleAdd = async (e) => { 
         e.preventDefault();
         if (text !== '') {
-            add(text);
-            setText('');
+            try {
+                add(text);
+                setText('');
+                const newTask = {
+                    name: text,
+                    status: 'process',
+                }
+                await axios.post('http://localhost:4000/api/tasks', newTask);
+            } catch (error) {
+                
+            }
         }
     }
 

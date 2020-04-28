@@ -1,16 +1,52 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {connect} from 'react-redux';
-import {complete, process} from '../store';
+import axios from 'axios';
 
-const mapDispatch = {complete, process}
+import {complete, process, setAll} from '../store';
 
-const Tasks = ({tasks, handleClick, complete, process}) => {
+
+const mapDispatch = {complete, process, setAll};
+
+const Tasks = ({tasks, handleClick, complete, process, setAll}) => {
+    console.log("task")
+
+    useEffect(() => {
+        loadTasks();
+    }, []);
+
+    async function loadTasks() {
+        try {
+            const tasks = await axios.get('http://localhost:4000/api/tasks');
+            setAll(tasks.data);
+        } catch (error) {
+            
+        }
+    }
+
     handleClick = (task) => {
         if (task.status === 'process') {
-            complete(task);
+            try {
+                complete(task);
+                const updatedTask = {
+                    name: task.name,
+                    status: 'completed'
+                }
+                axios.put('http://localhost:4000/api/tasks/' + task._id, updatedTask)
+            } catch (error) {
+                
+            }
         }
         else if (task.status === 'completed') {
-            process(task);
+            try {
+                process(task);
+                const updatedTask = {
+                    name: task.name,
+                    status: 'process'
+                }
+                axios.put('http://localhost:4000/api/tasks/' + task._id, updatedTask)
+            } catch (error) {
+                
+            }
         }
     }
 
@@ -21,8 +57,8 @@ const Tasks = ({tasks, handleClick, complete, process}) => {
                 <ul className="list-group">
                     {
                         tasks.map(task => (
-                            task.status === 'process' ? (
-                                <div className="list-group-item" key={task.id}>
+                            task.status === 'process' ? (   
+                                <div className="list-group-item" key={task._id}>
                                     <div className="text">
                                         <li >{task.name}</li>
                                     </div>
@@ -31,7 +67,7 @@ const Tasks = ({tasks, handleClick, complete, process}) => {
                                     </div>
                                 </div>
                             ) : (
-                                <React.Fragment key={task.id}/>
+                                <React.Fragment key={task._id}/>
                             )
                         ))
                     }
@@ -43,7 +79,7 @@ const Tasks = ({tasks, handleClick, complete, process}) => {
                     {
                         tasks.map(task => (
                             task.status === 'completed' ? (
-                                <div className="list-group-item" key={task.id}>
+                                <div className="list-group-item" key={task._id}>
                                     <div className="text">
                                         <li>{task.name}</li>
                                     </div>
@@ -52,7 +88,7 @@ const Tasks = ({tasks, handleClick, complete, process}) => {
                                     </div>
                                 </div>
                             ) : (
-                                <React.Fragment key={task.id}/>
+                                <React.Fragment key={task._id}/>
                             )
                         ))
                     }
